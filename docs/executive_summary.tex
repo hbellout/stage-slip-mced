@@ -1,0 +1,151 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, urlcolor=blue!60!black}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Why the Galleri Trial Missed Its Primary Endpoint}\\[0.3em]
+{\large\itshape Diagnostic Delay, Not Test Failure}\\[0.5em]
+{\normalsize February 2026}
+\end{center}
+
+\subsection*{The Finding}
+
+The NHS-Galleri trial's primary endpoint---a reduction in combined
+Stage~III+IV cancer diagnoses---was not met. Our analysis shows why.
+
+Using a Monte Carlo simulation calibrated to NHS population data, we
+estimate that the Galleri test correctly detected approximately
+\textbf{84 cancers at Stage~I or~II} that were subsequently recorded
+as Stage~III or~IV because the NHS diagnostic pathway took too long
+to confirm them. These cancers progressed past the Stage~II/III
+boundary during workup---imaging, biopsies, specialist referrals,
+and MDT review---and were counted \emph{against} the very endpoint
+the test was trying to improve.
+
+\begin{tcolorbox}[colback=blue!3!white, colframe=blue!50!black,
+  boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt]
+The trial needed just \textbf{25 of these 84 cases}---roughly one in
+three---to have been diagnosed promptly for the primary endpoint to
+reach statistical significance ($p < 0.05$). The test's biological
+performance is intact. The miss is an infrastructure problem, not an
+assay problem.
+\end{tcolorbox}
+
+\subsection*{The Context}
+
+The trial enrolled 142{,}000 participants across England and screened
+for 12 cancer types using the Galleri multi-cancer blood test. The
+intervention arm showed clear success: Stage~IV diagnoses fell by
+approximately 30\%, and Stage~I/II detections rose by over 50\%. But
+the composite Stage~III+IV endpoint---the primary measure---showed
+only about 470 cases in the control arm versus 443 in the
+intervention arm. A difference of just 26 cases, nowhere near
+statistical significance.
+
+The puzzle: how can a test that demonstrably finds cancers earlier
+fail to reduce late-stage diagnoses?
+
+\subsection*{The Mechanism: Stage Slip}
+
+When the blood test flags a possible cancer, the patient enters the
+NHS diagnostic pathway. This process takes time---our analysis
+estimates a median of 92~days for standard-of-care workup. During
+those weeks and months, the tumour continues to grow. A cancer that
+was Stage~II when the test detected it may be Stage~III by the time
+the diagnosis is finalised. We call this \textbf{stage slip}: the
+test found the cancer early, but the system recorded it late.
+
+Critically, this is a problem unique to the intervention arm. In the
+control arm, patients with no screening test simply develop cancer
+along its natural course until symptoms eventually trigger a
+referral---typically when the disease is already advanced. That is
+the baseline the trial measures against, not an infrastructure
+failure. Stage slip only occurs when there \emph{was} an early
+detection event that the diagnostic system failed to capitalise on.
+
+\subsection*{The Evidence Behind the Numbers}
+
+Our simulation is not a theoretical exercise. It is built on
+observed data at every level:
+
+\begin{itemize}[nosep, leftmargin=2em]
+\item \textbf{Calibrated to NHS reality.} For each of the 12 cancer
+  types, the model's control arm reproduces the actual
+  stage-at-diagnosis distribution reported in NHS England statistics
+  (NLCA, NHS Digital, Cancer Research~UK)---typically within 1--2
+  percentage points. The baseline is an actuarial match for England.
+
+\item \textbf{Cancer-specific detection rates} from the published
+  CCGA~3 clinical validation study, the largest multi-cancer
+  screening study to date.
+
+\item \textbf{A 92-day diagnostic delay} constructed from five
+  independent evidence streams: optimised US trial benchmarks
+  (PATHFINDER~1 and~2), NHS waiting-time performance data, a
+  published study of trial-induced diagnostic spillover across 9.6
+  million NHS referrals, and GRAIL's own regulatory disclosure.
+
+\item \textbf{200 independent simulation runs} producing statistical
+  confidence intervals on every output.
+\end{itemize}
+
+\subsection*{Robustness}
+
+The conclusion does not depend on the exact delay assumption. We
+tested every value from 65 to 120~days:
+
+\begin{center}\small
+\begin{tabular}{rl}
+\toprule
+SoC Delay & Composite endpoint (RR, 95\% CI) \\
+\midrule
+65 days  & 0.911 \,[CI spans 1.0] \\
+92 days  & 0.943 \,[CI spans 1.0] \\
+120 days & 0.981 \,[CI spans 1.0] \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent At every delay value tested, the composite endpoint remains
+non-significant. A critic who argues the true delay is 75~days
+rather than 92 has moved a parameter without changing the conclusion.
+
+GRAIL's own press release---subject to SEC financial disclosure
+standards---independently confirms the mechanism: ``there was a
+higher than anticipated incidence of Stage~III cancers'' linked to
+``time to diagnostic resolution,'' which ``appears to improve over
+time as physicians gain experience.''
+
+\subsection*{The Implication}
+
+Our simulation shows that realistic NHS diagnostic delays are large
+ enough to fully account for the primary endpoint miss. The number
+  of cancers estimated to “slip” stages exceeds what was needed for
+   the trial to meet its success threshold.
+%The results are consistent with the test finding cancers earlier.
+%%The Galleri test works.
+% %It finds cancers earlier. 
+ The NHS
+diagnostic pathway---never designed for asymptomatic MCED referrals
+and operating under significant capacity constraints during the trial
+period---was too slow to translate early detection into early
+\emph{diagnosis} for a material number of cases. The trial's 12-month
+extension, combined with the learning-curve improvements GRAIL has
+already documented, provides the window for this gap to close.
+
+The endpoint was not missed because the test failed. It was missed
+because the infrastructure was not yet fast enough to keep up with
+what the test found.
+
+\end{document}

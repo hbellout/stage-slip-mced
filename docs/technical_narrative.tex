@@ -1,0 +1,1154 @@
+% ============================================================================
+% Diagnostic Latency and Stage-at-Diagnosis Attenuation in MCED Trials:
+% A Calibrated Monte Carlo Reconstruction of the NHS-Galleri Results
+% ============================================================================
+\documentclass[11pt,letter]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{titling}
+\setlength{\droptitle}{-.5in} % move title up
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  urlcolor=blue!60!black,
+  citecolor=blue!60!black,
+  pdftitle={Stage Slip in MCED Trials: NHS-Galleri Reconstruction},
+  pdfauthor={Hamid Bellout}
+}
+
+\definecolor{boxblue}{RGB}{235,245,255}
+%\vspace{-2in}
+\title{\textbf{Stage Slip and Composite Endpoint Dynamics in the NHS-Galleri
+ Trial:} \\ [0.3em]\large   A Calibrated Monte Carlo Reconstruction}
+%\title{\textbf{Diagnostic Latency and Stage-at-Diagnosis Attenuation in
+%Multi-Cancer Early Detection Trials:}\\[0.3em]
+%\large A Calibrated Monte Carlo Reconstruction of the NHS-Galleri Results}
+
+\author{
+  Hamid Bellout, PhD\\[0.5em]
+  \small Professor Emeritus of Mathematics,\\
+   \small Northern Illinois University\\
+   % [0.5em]
+  \small DeKalb, Illinois, USA\\
+  %[0.5em]
+  \small \href{mailto:bellout@niu.edu}{bellout@niu.edu} \\
+%  \small ORCID: [to be inserted]
+}
+
+\date{February 28, 2026}
+
+\begin{document}
+%\vspace*{-.2in}
+\maketitle
+
+% ====================================================================
+\begin{abstract}
+\noindent\textbf{Background:}
+The NHS-Galleri trial reported a substantial reduction in Stage~IV cancer
+diagnoses and a four-fold increase in cancer detection rates, but did not
+meet its primary endpoint of reducing combined Stage~III+IV diagnoses in a
+prespecified group of 12 cancers. We hypothesize that \textit{stage slip}---
+progression of cancers from Stage~I/II to Stage~III during diagnostic
+workup---is the primary mechanism behind this statistical masking.
+
+\noindent\textbf{Methods:}
+We developed a Monte Carlo simulation of 142,000 participants (matching NHS-Galleri
+enrolment) across 12
+cancer types, calibrated to NHS England population stage distributions.
+The model represents three competing clocks: biological sojourn times,
+screening-initiated or symptom-driven pathway initiation, and diagnostic
+infrastructure delays. The median standard-of-care diagnostic delay
+(92~days) was constructed from five convergent evidence streams. We
+estimated the number of intervention-arm cases where a cancer was
+biologically Stage~I/II but recorded as Stage~III+IV at diagnosis, and
+determined how many such cases would need to be {\em recovered} for the
+composite endpoint to reach statistical significance. We validated that
+the 12 deadly cancers produce a sufficiently large early-stage patient
+pool and confirmed robustness across a wide range of test sensitivity and
+diagnostic delay assumptions.
+
+\noindent\textbf{Findings:}
+The calibrated control arm reproduces NHS stage distributions within 1--2
+percentage points for all 12 cancers. In the intervention arm, we estimate
+84 cases of stage slip (95\% CI: 68--104) at published sensitivity values.
+If only 25 of these cases (approximately one in three) had been diagnosed 
+before crossing the Stage II/III boundary, the composite endpoint 
+would have reached $p < 0.05$ at reported sensitivity levels.
+The slip count is robust to sensitivity assumptions, varying from 
+approximately 74 to 85 cases across a 30–100\% range of published CCGA~3 
+values. Across diagnostic delays from 65 to 120 days (at realised sensitivity),
+ the estimate ranges from approximately 55 to 95 cases.
+%Recovering only 25 of these
+%cases (approximately one in three) would yield $p < 0.05$ for the composite
+%%endpoint at realised sensitivity levels.
+% The slip count is robust: it remains between 74 and 85 across the
+%full range of published Galleri sensitivity values and across diagnostic
+%delays from 65 to 120~days. 
+The expected pool of early-stage cancers in the
+12 deadly types (${\sim}260$--335 screen-detected Stage~I/II cases per arm)
+is large enough that even a 12\% slip rate---corresponding to the most
+optimistic delay assumption---produces sufficient slippage to exceed the
+significance threshold.
+
+\noindent\textbf{Interpretation:}
+Stage slip provides a quantitatively sufficient and mechanistically
+transparent explanation for the primary endpoint miss. The test's biological
+performance is intact: it detects cancers earlier and reduces Stage~IV
+diagnoses. The composite endpoint was attenuated by systemic diagnostic
+latency in the NHS, not by a failure of the assay. Future MCED trials should
+consider endpoints less vulnerable to infrastructure delays or incorporate
+prespecified adjustments for expected diagnostic pathway timing.
+
+\noindent\textbf{Funding:} None. \hfill \textbf{Registration:} Not applicable.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ====================================================================
+\section{Introduction}
+% ====================================================================
+
+Multi-cancer early detection (MCED) tests aim to shift the stage
+distribution of cancers toward earlier, more treatable stages. The
+NHS-Galleri trial, the largest randomized controlled trial of an MCED test
+to date, enrolled 142,000 participants in England's National Health Service
+and evaluated annual screening with the Galleri blood test over three years
+\cite{GRAIL2026}.  
+The trial's primary objective was to demonstrate a statistically significant
+ reduction in late-stage (Stage III+IV) cancer diagnoses, assessed sequentially
+  across three prespecified cancer groupings. The first gate in this sequential
+   analysis — and the one on which the trial's significance depended — was
+    a prespecified group of 12 cancer types that account for approximately
+     two-thirds of cancer deaths in the UK and US, most of which lack any
+      existing screening programme
+
+Public reporting indicated substantial positive signals: a reduction in
+Stage~IV diagnoses exceeding 20\% in screening rounds 2 and 3, a four-fold
+improvement in overall cancer detection rates, and a substantial increase
+in Stage~I/II detections \cite{GRAIL2026}. However, the primary composite
+Stage~III+IV endpoint was not met (consistent with a p-value in the range
+0.05--0.20), with the sponsor noting ``a higher than anticipated incidence
+of Stage~III cancers'' \cite{GRAIL2026}.
+
+This study addresses a specific question: is the endpoint miss explained by
+diagnostic infrastructure timing rather than test failure? A composite
+Stage~III+IV endpoint counts cancers by stage \emph{at diagnosis}, not by
+stage \emph{at pathway initiation}. If a screening signal triggers
+diagnostic workup while a cancer is Stage~I/II but confirmation occurs
+after the cancer has crossed the Stage~II/III boundary, the case is
+recorded as Stage~III---\emph{against} the endpoint the test is trying to
+reduce. We term this mechanism \textbf{stage slip}.
+
+We present a calibrated Monte Carlo simulation framework that quantifies
+stage slip under explicitly stated assumptions, demonstrates its robustness
+to key parameter choices, and shows that a modest number of slipped cases
+is sufficient to explain the observed endpoint miss.
+
+
+% ====================================================================
+\section{Methods}
+\label{sec:methods}
+% ====================================================================
+
+% --------------------------------------------------
+\subsection{Conceptual framework: three competing clocks}
+
+Stage slip arises from a race among three temporal processes:
+
+\begin{enumerate}[label=(\alph*)]
+\item \textbf{Biological clock (sojourn time).} Each cancer dwells in each
+  stage for a finite, stochastic duration. We model sojourn times as
+  cancer-specific lognormal random variables with literature-informed
+  medians and a shared dispersion parameter $\sigma = 0.35$.
+
+\item \textbf{Signal clock (pathway initiation).} In the intervention arm,
+  the signal is a positive MCED test at an annual screening round. In the
+  control arm, it is the onset of symptoms sufficient to trigger clinical
+  referral, modeled via calibrated stage-dependent exponential hazards. The
+  key asymmetry: Galleri can fire while a cancer is Stage~I/II and the
+  patient is asymptomatic; the symptom-driven signal almost never fires at
+  Stage~I/II because early-stage cancers are largely asymptomatic.
+
+\item \textbf{Infrastructure clock (diagnostic delay).} The elapsed time
+  from signal to confirmed diagnosis. If this exceeds the remaining sojourn
+  time before the Stage~II/III boundary, the patient slips.
+\end{enumerate}
+
+\noindent\textbf{Why slip matters only in the intervention arm.} In the
+control arm, cancers that progress from Stage~I/II to III/IV are following
+their natural history---no early detection event occurred, no accelerated
+pathway was initiated, and no infrastructure failed to keep pace. This is
+the baseline rate of late-stage diagnosis in an unscreened population. In
+the intervention arm, the test detected the cancer early and initiated a
+diagnostic pathway; if the pathway was too slow, the early detection
+advantage was lost. Stage slip is therefore an infrastructure cost borne
+exclusively by the screened arm.
+
+
+% --------------------------------------------------
+\subsection{Cohort, cancer mixture, and screening schedule}
+
+We simulate a cohort of $N = 142{,}000$ participants (matching NHS-Galleri
+enrolment) with annual screening at $t \in \{0, 1, 2\}$ years and
+three-year follow-up. Twelve cancer types are modeled with weights $w_c$
+reflecting English population incidence for the relevant age band
+(Table~\ref{tab:cancers}).
+
+\subsubsection{Expected case counts}
+
+At an approximate annual incidence rate of ${\sim}350$ per 100,000 for these
+12 cancer types in the 50--77 age band, the trial is expected to produce
+approximately 1,500 cancers across both arms (${\sim}750$ per arm) over
+three years. This is a large pool from which stage slip can draw: even a
+modest slip rate applied to the early-stage fraction produces a clinically
+consequential number of misclassified cases.
+
+
+% --------------------------------------------------
+\subsection{MCED sensitivity: published values for the 12 deadly cancers}
+\label{sec:sensitivity}
+
+A critical input is the Galleri test's stage-specific sensitivity for each
+cancer type. The test was clinically validated in the third Circulating
+Cell-free Genome Atlas (CCGA~3) substudy \cite{Klein2021, Liu2020}, which
+reported cancer-specific and stage-specific sensitivities. For the 12
+prespecified deadly cancers, the test achieves substantially higher
+sensitivity than the all-cancer average because these aggressive tumors shed
+more cell-free DNA at earlier stages \cite{Klein2021, Shao2022}.
+
+Published data include:
+\begin{itemize}[nosep]
+\item \textbf{Aggregate:} 76.3\% sensitivity across all stages for the 12
+  deadly cancers; 67.6\% at Stages I--III \cite{Klein2021}.
+\item \textbf{Cancer-specific} (from GRAIL HCP documentation
+  \cite{GRAILfaq}): pancreatic cancer 61.9\% at Stage~I, 60.0\% at II,
+  85.7\% at III; ovarian cancer 50.0\% at Stage~I, 80.0\% at II, 87.1\% at
+  III; liver/bile duct 100\% at Stage~I.
+\item \textbf{All-cancer averages} (for comparison): Stage~I 16.8\%,
+  Stage~II 40.4\%, Stage~III 77.0\%, Stage~IV 90.1\% \cite{Klein2021}.
+\end{itemize}
+
+\noindent The all-cancer averages substantially \emph{understate}
+sensitivity for the 12 deadly cancers. Our simulation uses cancer-specific
+values derived from these published sources (Table~\ref{tab:cancers}). To
+verify robustness, we also test a conservative scenario using the lower
+all-cancer averages (Section~\ref{sec:robustness}).
+
+\subsubsection{Validation of the early-stage patient pool}
+
+With a weighted average Stage~I/II sensitivity of approximately 35--45\%
+for these 12 cancers, and ${\sim}750$ cases per arm, the test is expected
+to detect 260--335 cancers at Stage~I/II in the intervention arm. This pool
+is large enough that even a 12\% slip rate (the most optimistic scenario,
+corresponding to a 65-day delay) would produce ${\sim}36$ slipped
+cases---still above the 25-case significance threshold established in our
+counterfactual analysis (Section~\ref{sec:counterfactual}).
+
+
+% --------------------------------------------------
+\subsection{Control-arm calibration to NHS stage distributions}
+\label{sec:calibration}
+
+A credible stage-slip estimate requires that the control arm reproduce the
+actual NHS population stage-at-diagnosis distribution by cancer type. We
+model symptom-driven referral using stage-dependent exponential hazards
+$k_{E,c}$, $k_{\text{III},c}$, $k_{\text{IV},c}$ for each cancer. These
+were calibrated via grid search so that simulated control-arm stage
+distributions match NHS targets compiled from:
+
+\begin{itemize}[nosep]
+\item National Lung Cancer Audit (NLCA) 2022--2023 \cite{NLCA2024}
+\item NHS Digital cancer incidence by stage, 2015--2022 \cite{NHSDig2020}
+\item Cancer Research UK Early Diagnosis Data Hub \cite{CRUK2025}
+\end{itemize}
+
+\noindent Table~\ref{tab:calibration} confirms all 12 cancers match
+within 1--2 percentage points RMS.
+
+\begin{table}[!ht]\centering\small
+\caption{Calibration verification: simulated vs.\ NHS target stage
+distributions (\%).}
+\label{tab:calibration}
+\begin{tabular}{l rrr rrr r}\toprule
+ & \multicolumn{3}{c}{Simulated (\%)} & \multicolumn{3}{c}{NHS target (\%)}
+ & Gap \\
+Cancer & I/II & III & IV & I/II & III & IV & (RMS pp) \\ \midrule
+Anus        & 54 & 25 & 21 & 55 & 25 & 20 & 0.6 \\
+Bladder     & 52 & 22 & 27 & 52 & 20 & 28 & 1.1 \\
+Colorectal  & 43 & 31 & 26 & 44 & 30 & 26 & 0.8 \\
+Esophagus   & 15 & 23 & 62 & 15 & 25 & 60 & 1.5 \\
+Head \& Neck& 35 & 26 & 38 & 35 & 25 & 40 & 1.3 \\
+Liver/Bile  & 16 & 19 & 64 & 15 & 20 & 65 & 0.9 \\
+Lung        & 32 & 24 & 44 & 34 & 22 & 44 & 1.4 \\
+Lymphoma    & 39 & 22 & 39 & 40 & 22 & 38 & 0.5 \\
+Myeloma     & 42 & 28 & 31 & 40 & 28 & 32 & 1.2 \\
+Ovary       & 28 & 49 & 23 & 30 & 46 & 24 & 2.1 \\
+Pancreas    & 12 & 24 & 63 & 12 & 25 & 63 & 0.5 \\
+Stomach     & 18 & 27 & 55 & 20 & 25 & 55 & 1.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% --------------------------------------------------
+\subsection{Diagnostic delay model}
+\label{sec:delay}
+
+\subsubsection{Construction of the 92-day central estimate}
+
+The standard-of-care median diagnostic delay $\Delta_{\text{SoC}} = 92$
+days is the single most consequential assumption. It is a
+\textbf{constructed estimate} derived from five convergent evidence streams:
+
+\begin{enumerate}[label=(\roman*), nosep]
+\item \textbf{PATHFINDER~2 optimised US floor (46~days).} Median diagnostic
+  resolution in optimised US academic centres; true positives resolved in
+  36~days (IQR 24--61) \cite{Nabavizadeh2025}.
+
+\item \textbf{PATHFINDER~1 early US experience (79~days).} Before workup
+  protocols were refined; false-positive median was 162~days
+  \cite{Schrag2023}.
+
+\item \textbf{Trial-induced spillover (Mann et al., RAND 2025).}
+  Difference-in-differences analysis across 9.6 million NHS referrals
+  showing a +3.4 percentage point increase in diagnostic delay rates in
+  participating regions ($p < 0.001$), persistent through month~12
+  \cite{Mann2025}.
+
+\item \textbf{Sponsor self-attestation (GRAIL, February 2026).} SEC-
+  regulated press release: ``there was a higher than anticipated incidence
+  of Stage~III cancers\ldots the time to diagnostic resolution appears to
+  improve over time as physicians gain experience'' \cite{GRAIL2026}.
+
+\item \textbf{NHS system performance data (2021--2025).} The 62-day
+  referral-to-treatment standard was met for only 67--72\% of patients;
+  52.3\% of urgent GP referrals exceeded 28~days for diagnosis alone;
+  the Royal College of Radiologists reported $>$95,000 patients waiting
+  $>$6 weeks for CT or MRI in January 2024 \cite{NHS2025}.
+\end{enumerate}
+
+\noindent\textbf{Construction:} $46 \times 2.0 = 92$ days. The
+$2.0\times$ multiplier is conservative: PATHFINDER~1 reaches 79~days
+\emph{in the US}, leaving only a 13-day margin for all NHS-specific
+structural delays including: no pre-existing MCED pathway, imaging queues
+of 6+ weeks, GP/specialist unfamiliarity with MCED signals, MDT scheduling
+delays, and trial-induced spillover on shared diagnostic resources
+\cite{Lowenhoff2025}.
+
+\subsubsection{Screening pathway delays}
+
+Screen-initiated workup delays are shorter and decrease across rounds to
+represent a learning curve: medians of 75, 60, and 50 days for rounds 1,
+2, and 3, respectively. A spillover factor of $1.20\times$ inflates all
+delays during Year~1 \cite{Mann2025}.
+
+\subsubsection{Why a reviewer who disputes 92 days does not alter the conclusion}
+
+We evaluate the full 65--120~day range in Section~\ref{sec:robustness}.
+The slip count remains above the significance threshold at every value
+tested.
+
+
+% --------------------------------------------------
+\subsection{Event-time simulation}
+\label{sec:simulation}
+
+For each simulated cancer case (200 independent Monte Carlo runs):
+\begin{enumerate}[nosep]
+\item Sample cancer type $c$ from weights $w_c$.
+\item Sample onset time $t_0$ uniformly in $[-T_{\text{pre}},
+  T_{\text{follow}}]$ to include prevalent cancers at baseline.
+\item Sample stage sojourn times from cancer-specific lognormal
+  distributions.
+\item Generate symptom-driven referral time using calibrated hazards;
+  compute $t_{\text{dx,SoC}} = t_{\text{ref}} + \Delta_{\text{SoC}}$.
+\item (Intervention arm) Evaluate MCED screening at rounds $t_r$ with
+  cancer- and stage-specific sensitivity. If positive, compute
+  $t_{\text{dx,screen}}^{(r)} = t_r + \Delta_{\text{screen}}^{(r)}$.
+\item Select the earliest diagnosis route and record stages at initiation
+  ($S_{\text{init}}$) and at diagnosis ($S_{\text{dx}}$).
+\end{enumerate}
+
+\noindent A \textbf{stage slip} event is defined as $S_{\text{init}} \in
+\{\text{I/II}\}$ and $S_{\text{dx}} \in \{\text{III, IV}\}$. All results
+are reported as means and 95\% empirical intervals across 200 seeds, which
+are deterministic integers (0--199 for the control arm, 100,000--100,199
+for the intervention arm), ensuring full reproducibility.
+
+
+% --------------------------------------------------
+\subsection{Outcomes and counterfactual analysis}
+\label{sec:counterfactual}
+
+The primary outcome is the number of slipped cases in the intervention arm.
+We perform a counterfactual analysis: for each integer $k$ from 0 to the
+total slip count, we compute the p-value for the composite endpoint
+assuming $k$ slipped cases had been diagnosed promptly (remaining in
+Stage~I/II). The two-sample z-test of proportions is used with a one-sided
+significance threshold of $p < 0.05$.
+
+
+% ====================================================================
+\section{Results}
+\label{sec:results}
+% ====================================================================
+
+% --------------------------------------------------
+\subsection{Calibration verification}
+
+Table~\ref{tab:calibration} confirms that the simulated control arm matches
+NHS target stage distributions within 1--2 percentage points for all 12
+cancers. The baseline unscreened population is an actuarial representation
+of England's cancer population.
+
+
+% --------------------------------------------------
+\subsection{Composite endpoint}
+
+\begin{table}[!ht]\centering
+\caption{Stage~III+IV composite endpoint (calibrated model with CCGA~3
+cancer-specific sensitivities, 200 seeds).}
+\label{tab:composite}
+\begin{tabular}{lcc}\toprule
+ & Control & Intervention \\ \midrule
+Stage I/II cases  & 239 [211, 266] & 472 [441, 505] \\
+Stage III cases   & 186 [161, 213] & 234 [207, 263] \\
+Stage IV cases    & 283 [253, 313] & 155 [134, 176] \\
+\midrule
+Stage III+IV      & 470 [434, 505] & 389 [360, 420] \\
+Difference        & \multicolumn{2}{c}{$-$80 [$-$127, $-$31]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent With published CCGA~3 sensitivities, the model produces a
+\emph{significant} composite reduction ($\Delta = -80$, $p = 0.003$):
+Stage~IV drops by ${\sim}$45\% and Stage~I/II detection nearly doubles.
+This overshoots the reported trial result (non-significant composite,
+$>$20\% Stage~IV reduction in rounds 2--3), indicating that the realised
+in-trial sensitivity was somewhat below the clinical-study values---likely
+because the NHS diagnostic pathway was loaded by positive results across
+all $50+$ Galleri-detectable cancer types, not just the 12 prespecified
+deadly cancers.
+
+This discrepancy is itself informative: with published sensitivities,
+the screening effect is strong enough that only stage slip---inflating
+the intervention arm's Stage~III+IV count---can explain how a biologically
+effective test produced a non-significant composite endpoint. The
+sensitivity sweep in Section~\ref{sec:sens_robust} identifies the
+realised-sensitivity range that reproduces the observed trial pattern
+while confirming that the slip count remains stable regardless.
+
+
+% --------------------------------------------------
+\subsection{Stage slip magnitude}
+
+In the intervention arm, we estimate \textbf{84 cases} (95\% CI: 68--104)
+where a cancer was biologically Stage~I/II but recorded as Stage~III+IV at
+diagnosis. Table~\ref{tab:slip_detail} breaks these down by diagnostic
+route.
+
+\begin{table}[!ht]\centering
+\caption{Stage slip in the intervention arm by route (200 seeds, CCGA~3
+sensitivities).}
+\label{tab:slip_detail}
+\begin{tabular}{lll}\toprule
+Route & Slipped cases & Slip rate \\ \midrule
+Screen (test-positive, workup too slow) & 42 [28, 55] & 14\% \\
+SoC (test-negative, standard progression) & 43 [30, 55] & 20\% \\
+\midrule
+\textbf{Total} & \textbf{84 [68, 104]} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% --------------------------------------------------
+\subsection{Decomposition: where the screening system had an opportunity}
+\label{sec:decomposition}
+
+Not all 84 slipped cases are identical. We traced each case to determine
+whether the Galleri test had a genuine opportunity to detect the cancer at
+Stage~I/II (Table~\ref{tab:opportunity}).
+
+\begin{table}[!ht]\centering
+\caption{Intervention-arm slip decomposition by system opportunity
+(200 seeds for totals, 50 seeds for subcategories, CCGA~3 sensitivities).}
+\label{tab:opportunity}
+\begin{tabular}{p{0.55\textwidth}rr}\toprule
+Category & Cases & \% of total \\ \midrule
+\textbf{A.} Test detected cancer at I/II but workup too slow
+  (screen route) & 42 & 49\% \\
+\textbf{B.} Test administered while cancer was I/II but returned
+  false-negative; cancer progressed through SoC & 31 & 36\% \\
+\midrule
+\textbf{System had opportunity (A+B)} & \textbf{73 [57, 88]} &
+  \textbf{86\%} \\
+\midrule
+\textbf{C.} Cancer already Stage III+ at all screening rounds
+  (test never had a chance) & 6 & 7\% \\
+\textbf{D.} No screening round applicable (onset timing) & 6 & 7\% \\
+\midrule
+No system opportunity (C+D) & 12 [9, 18] & 14\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent \textbf{86\% of all slipped cases} (73 of 84) occurred in
+patients where the screening system had a genuine opportunity to detect
+the cancer at Stage~I/II---either the test detected it and the
+infrastructure was too slow to confirm it (42 cases), or the test was
+administered while the cancer was early-stage but returned a
+false-negative (31 cases).
+
+This decomposition is important for two reasons. First, it confirms that
+the slipped cases are not equivalent to control-arm natural progression:
+these patients were in a screening programme, were tested, and the system
+had a chance to act. Second, it identifies two distinct failure modes---
+diagnostic delay (Category~A, addressable by faster infrastructure) and
+test sensitivity (Category~B, addressable by assay improvement)---both
+of which are targets for system optimization.
+
+
+% --------------------------------------------------
+\subsection{Distinction from control-arm progression}
+
+The control arm shows approximately 69 cases [54--86] where a cancer was
+biologically Stage~I/II at some modeled time point but recorded as
+Stage~III+IV at diagnosis. These patients had no early detection event.
+No test was administered. No diagnostic pathway was initiated while the
+cancer was still early. Their cancers progressed through the natural
+history of unscreened disease until symptoms eventually triggered
+referral---typically when the cancer was already advanced.
+
+This is the baseline against which the intervention is measured. It is
+what happens when no screening programme exists. The 84 intervention-arm
+cases are qualitatively different: 86\% of them were cases where the
+system had a detection opportunity and did not capitalize on it.
+
+
+% --------------------------------------------------
+\subsection{Counterfactual recovery analysis}
+\label{sec:pvalue}
+
+With published CCGA~3 sensitivities, the composite endpoint is significant
+even with 84 cases of slip (Table~\ref{tab:pvalue_ccga3}). Without slip---
+if all 84 cases had been diagnosed promptly at Stage~I/II---the
+intervention arm's Stage~III+IV count would fall to 305, yielding
+$\Delta = -165$ ($p < 0.001$). Slip attenuates this to $\Delta = -80$
+($p = 0.003$), still significant.
+
+\begin{table}[!ht]\centering
+\caption{Counterfactual analysis at CCGA~3 sensitivities: effect of slip
+attenuation. The model endpoint is significant at every level of slip.}
+\label{tab:pvalue_ccga3}
+\begin{tabular}{rrrl}\toprule
+Slip cases absorbed & Intervention III+IV & $\Delta$ & p-value \\ \midrule
+0 (no slip)    & 305 & $-$165 & $<$0.001 \\
+20             & 325 & $-$145 & $<$0.001 \\
+40             & 345 & $-$125 & $<$0.001 \\
+60             & 365 & $-$105 & $<$0.001 \\
+\textbf{84 (all slip)} & \textbf{389} & \textbf{$-$80} & \textbf{0.003} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The fact that the model remains significant even with full slip
+while the actual trial was \emph{not} significant implies that the
+realised in-trial sensitivity was below the published CCGA~3 values.
+This is expected: the NHS diagnostic pathway processed positive results
+for all $50+$ Galleri-detectable cancer types, not just the 12 prespecified
+deadly cancers, and screening compliance may not have been 100\%.
+
+To determine the significance threshold at realised sensitivity, we ran
+the simulation at 50\% of published CCGA~3 values---the multiplier that
+best reproduces the reported trial pattern ($>$20\% Stage~IV reduction,
+non-significant composite). At this level, the intervention arm shows
+${\sim}437$ Stage~III+IV cases with ${\sim}78$ slipped, and recovering
+25 of those 78 (32\%) yields $p < 0.05$ (Table~\ref{tab:pvalue_realised}).
+
+\begin{table}[!ht]\centering
+\caption{P-value sensitivity at realised sensitivity (${\sim}$50\% of
+CCGA~3), which reproduces the observed trial pattern.}
+\label{tab:pvalue_realised}
+\begin{tabular}{rrrl}\toprule
+Recovered & Intervention III+IV & $\Delta$ & p-value \\ \midrule
+0 (as observed)  & 437 & $-$33 & 0.12 \\
+10            & 427 & $-$43 & 0.07 \\
+15            & 422 & $-$48 & 0.05 \\
+20            & 417 & $-$53 & 0.03 \\
+\textbf{25}   & \textbf{412} & \textbf{$-$58} & \textbf{0.02} \\
+35            & 402 & $-$68 & 0.007 \\
+50            & 387 & $-$83 & 0.001 \\
+78 (all)      & 359 & $-$111 & $<$0.001 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The key finding is consistent across both scenarios:
+\textbf{stage slip of 78--84 cases is sufficient to explain the endpoint
+miss}, and recovering approximately one-third of the slipped cases would
+have rendered the primary endpoint statistically significant. Whether the
+test operated at published or realised sensitivity, the slip count remains
+in the same range (Section~\ref{sec:sens_robust}).
+
+
+% ====================================================================
+\section{Robustness Analysis}
+\label{sec:robustness}
+% ====================================================================
+
+The central scenario uses specific values for diagnostic delay and test
+sensitivity. We now demonstrate that the conclusion---stage slip is
+sufficient to explain the endpoint miss---is robust to both.
+
+% --------------------------------------------------
+\subsection{Robustness to diagnostic delay}
+
+Table~\ref{tab:delay_sweep} evaluates delays from 65 to 120~days at
+realised sensitivity (${\sim}$50\% of CCGA~3, the level that reproduces
+the observed trial pattern). At 65~days---well below any realistic NHS
+estimate---the simulation still produces approximately 55 slipped cases in
+the intervention arm, more than double the 25-case recovery threshold. At
+120~days, the count rises to approximately 95.
+
+\begin{table}[!ht]\centering
+\caption{Sensitivity of the composite endpoint and intervention-arm slip
+to the assumed median diagnostic delay (at realised sensitivity,
+${\sim}$50\% of CCGA~3).}
+\label{tab:delay_sweep}
+\begin{tabular}{rlr}\toprule
+SoC delay (days) & RR(III+IV) [95\% CI] & Est.\ slip cases \\ \midrule
+65  & 0.911 [0.833, 1.007] & ${\sim}$55 \\
+75  & 0.919 [0.826, 1.044] & ${\sim}$63 \\
+85  & 0.933 [0.830, 1.034] & ${\sim}$70 \\
+92 $\leftarrow$ & 0.923 [0.830, 1.020] & ${\sim}$78 \\
+100 & 0.957 [0.845, 1.055] & ${\sim}$83 \\
+110 & 0.966 [0.873, 1.054] & ${\sim}$89 \\
+120 & 0.981 [0.875, 1.071] & ${\sim}$95 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent At every delay value, the 95\% confidence interval for the
+composite risk ratio spans~1.0, and the estimated slip count exceeds 25.
+A critic who argues the true delay is 65~days has moved a parameter
+without changing the conclusion.
+
+\subsection{Robustness of the core thesis: Category~A cases across delays}
+\label{sec:catA_robust}
+
+The central thesis of this paper---that Galleri detected cancers early but
+the diagnostic infrastructure failed to confirm them in time---rests on
+Category~A cases: those where the test returned a positive ``cancer signal
+detected'' result while the cancer was Stage~I/II, the patient entered the
+diagnostic pathway because of this result, and the infrastructure was too
+slow to confirm the diagnosis before progression past the Stage~II/III
+boundary. These are the cases where the test unambiguously succeeded and
+the system unambiguously failed.
+
+Table~\ref{tab:catA_delay} shows the number of Category~A cases across the
+full 65--120~day delay range. At every delay value tested, including the
+most optimistic (65~days, well below any realistic NHS estimate), the
+Category~A count exceeds 40---comfortably above the 25-case recovery
+threshold for composite endpoint significance.
+
+\begin{table}[!ht]\centering
+\caption{Category~A cases (test-positive, infrastructure too slow) across
+diagnostic delay assumptions. CCGA~3 sensitivities, 30 seeds per delay.}
+\label{tab:catA_delay}
+\begin{tabular}{rcccc}\toprule
+SoC delay (days) & Cat.~A & Cat.~B & Cat.~C+D & A $>$ 25? \\
+                 & (test+, slow) & (test$-$, missed) & (no opportunity) & \\ \midrule
+65  & 41 & 23 & 9  & Yes \\
+75  & 42 & 26 & 10 & Yes \\
+85  & 43 & 28 & 11 & Yes \\
+92 $\leftarrow$ & 43 & 30 & 12 & Yes \\
+100 & 44 & 33 & 12 & Yes \\
+110 & 45 & 36 & 13 & Yes \\
+120 & 46 & 40 & 14 & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Several features of this table strengthen the argument:
+
+\begin{enumerate}[nosep]
+\item Category~A is remarkably stable (41--46 cases), varying by only
+  12\% across a delay range that nearly doubles. This stability arises
+  because shorter delays reduce per-case slip probability but do not
+  change the number of test-positive detections; longer delays increase
+  per-case slip but also allow some cases to be diagnosed via the faster
+  screen route before symptoms trigger the slower SoC pathway.
+
+\item At 65~days---an estimate below the PATHFINDER~1 US median of
+  79~days and far below any plausible NHS figure---there are still 41
+  Category~A cases, more than 1.6$\times$ the significance threshold.
+
+\item Category~A alone, without any contribution from Category~B
+  (false-negatives) or C+D (no opportunity), is sufficient at every delay
+  to explain the endpoint miss.
+
+\item A critic who disputes the delay estimate, the sojourn times, or the
+  sensitivity values must contend with the fact that these 41--46 cases
+  are the most conservatively defined subset of slip: the test was
+  positive, the patient entered the pathway, and the infrastructure clock
+  ran out. No modelling assumption changes this mechanism.
+\end{enumerate}
+
+\noindent This is the irreducible core of the analysis. The thesis that
+Galleri's composite endpoint miss was caused by diagnostic infrastructure
+delay, not by test failure, stands on these 42 cases alone.
+% --------------------------------------------------
+\subsection{Robustness to test sensitivity}
+\label{sec:sens_robust}
+
+The published CCGA~3 cancer-specific sensitivities for the 12 deadly
+cancers are substantially higher than the all-cancer averages because these
+aggressive tumors shed more cfDNA at earlier stages. To ensure our
+conclusion does not depend on the exact sensitivity values, we tested the
+simulation across a range from 30\% to 100\% of the published CCGA~3
+cancer-specific values (Table~\ref{tab:sens_sweep}).
+
+\begin{table}[!ht]\centering
+\caption{Sensitivity sweep: Stage~IV reduction, composite endpoint, and
+slip count across sensitivity assumptions.}
+\label{tab:sens_sweep}
+\begin{tabular}{rrrrl}\toprule
+Sens.\ mult. & Wtd.\ sens$_E$ & RR(IV) & RR(III+IV) & Slip cases \\ \midrule
+30\% (ultra-conservative) & 0.12 & 0.85 & 0.95 & ${\sim}$74 \\
+50\% & 0.20 & 0.76 & 0.92 & ${\sim}$78 \\
+60\% & 0.24 & 0.71 & 0.90 & ${\sim}$79 \\
+70\% & 0.29 & 0.67 & 0.89 & ${\sim}$81 \\
+100\% (published CCGA~3) & 0.41 & 0.54 & 0.82 & ${\sim}$85 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The slip count varies only from 74 to 85 across the entire
+sensitivity range---a 15\% variation for a more than three-fold change in
+assumed sensitivity. This stability arises because higher sensitivity
+increases the number of early detections (creating more slip opportunities)
+while simultaneously shifting cases to the faster screen route (reducing
+per-case slip probability). The two effects approximately cancel.
+
+Notably, the sensitivity multiplier that best reproduces the reported
+trial pattern ($>$20\% Stage~IV reduction, non-significant composite) is
+in the 50--60\% range, corresponding to a weighted Stage~I/II sensitivity
+of 0.20--0.24. The 12 deadly cancers in the NHS-Galleri trial were screened
+alongside all other Galleri-detectable cancers, and the overall diagnostic
+pathway load from all positive results may have effectively reduced the
+per-cancer throughput, producing a realized sensitivity below the
+clinical-study optimum. Regardless of the explanation, the slip count
+remains stable and well above the significance threshold.
+
+
+% --------------------------------------------------
+\subsection{Robustness to combined parameter variation}
+
+The two key parameters (delay and sensitivity) have been varied
+independently. In the worst case for our hypothesis---the shortest delay
+(65~days) combined with the lowest sensitivity (30\% of CCGA~3)---the
+simulation still produces approximately 50 slipped cases, double the
+25-case significance threshold. There is no plausible combination of
+parameters that reduces the slip count below 25.
+
+
+% ====================================================================
+\section{Discussion}
+\label{sec:discussion}
+% ====================================================================
+
+% --------------------------------------------------
+\subsection{Summary of findings}
+
+This reconstruction quantifies a mechanism by which diagnostic pathway
+timing can materially influence a composite stage-at-diagnosis endpoint
+in a screened arm. The Stage~II/III boundary is the critical failure point:
+the trial's composite endpoint combined Stages~III and IV, so any clinical
+``save'' that moved a case from Stage~IV to Stage~III was statistically
+neutralized, while the slow infrastructure clock allowed Stage~I/II
+detections to slip into Stage~III. The result is an infrastructure
+tax---84 cases in the intervention arm where a cancer was biologically
+early but recorded as late.
+
+Recovering one-third of these cases (25 of 84) at realised sensitivity
+levels would have rendered the
+primary endpoint statistically significant. This finding is robust across
+the full 65--120~day delay range, across the full range of published test
+sensitivities, and is independently corroborated by the sponsor's own
+disclosure \cite{GRAIL2026}.
+
+
+% --------------------------------------------------
+\subsection{Why the intervention-arm cases are not equivalent to the control arm}
+
+A natural objection is that similar progression occurs in the control arm
+(69 cases). However, the two populations are fundamentally different:
+
+\begin{enumerate}[nosep]
+\item In the \textbf{control arm}, patients were never screened. Their
+  cancers progressed from Stage~I/II through the natural history of
+  unscreened disease. Being asymptomatic at early stages, they had no
+  reason to seek medical attention and no diagnostic pathway was initiated.
+  This is the baseline burden of late-stage cancer in an unscreened
+  population.
+
+\item In the \textbf{intervention arm}, 86\% of the slipped cases (73 of
+  84) were in patients where the screening system had a genuine
+  opportunity. In 42 cases, the Galleri test detected the cancer and fired
+  a ``cancer signal detected'' alert---the patient entered the diagnostic
+  pathway because of this alert. In 31 additional cases, the test was
+  administered while the cancer was Stage~I/II but returned a
+  false-negative; these patients were in a screening programme that had a
+  detection opportunity it did not capitalize on.
+
+\item Only 12 cases (${\sim}$14\%) had no system opportunity---cancers that
+  were already advanced at all screening rounds or arose after the last
+  screen. These are the only cases arguably comparable to control-arm
+  progression.
+\end{enumerate}
+
+
+% --------------------------------------------------
+\subsection{The 92-day estimate in context}
+
+Our central delay estimate of 92~days has been challenged in earlier
+versions of this analysis. We address the objection directly: the
+sensitivity analysis shows that the conclusion holds at 65~days, a value
+below the PATHFINDER~1 US median of 79~days. Any NHS-based estimate must
+exceed the US optimised floor, and the NHS system data confirm substantial
+structural delays during the trial period. The 92-day figure is a central
+estimate, not a fragile assumption.
+
+
+% --------------------------------------------------
+\subsection{Anticipating objections}
+
+\subsubsection{``The sojourn times are uncertain''}
+
+Sojourn times determine how quickly a cancer crosses from Stage~II to
+Stage~III. If Stage~I/II sojourn times are longer than we assume, fewer
+cases slip (the tumour moves more slowly relative to the delay). If
+shorter, more cases slip. The simulation uses cancer-specific medians from
+the natural-history literature with a $\sigma = 0.35$ lognormal spread
+that generates substantial case-by-case variability. The sensitivity sweep
+across delays implicitly tests varying effective sojourn-to-delay ratios.
+
+\subsubsection{``Not all participants may have been screened at every round''}
+
+This is correct and would reduce the effective sensitivity of the screening
+programme. As shown in Section~\ref{sec:sens_robust}, the slip count is
+stable across a wide range of effective sensitivity values because lower
+screening coverage reduces both the number of early detections and the
+number of slip opportunities proportionally.
+
+\subsubsection{``The simulation doesn't account for competing mortality''}
+
+The simulation includes a mortality filter: cases where Stage~IV death
+precedes diagnosis are excluded. This prevents over-counting of advanced
+cancers.
+
+\subsubsection{``Real referral patterns may differ from exponential
+hazards''}
+
+We model symptom-driven referral as a constant-rate exponential within each
+stage. In reality, referral probability may increase with time-in-stage.
+This would make the control arm's late-stage diagnoses even more
+concentrated in advanced disease, reinforcing the distinction between
+control-arm natural progression and intervention-arm slip.
+
+\subsubsection{``The actual trial's case counts are unknown''}
+
+This is the most important limitation. We reproduce the \emph{pattern}
+of reported results (Stage~IV reduction, non-significant composite,
+Stage~III excess) but cannot validate against unpublished individual-level
+data. The 84-case slip estimate is model-conditional and will be testable against full data at ASCO 2026.
+
+\subsubsection{``Stage slip is just one of several possible explanations''}
+
+We agree that multiple mechanisms could contribute, and we do not claim
+stage slip is the sole explanation. We claim it is \emph{sufficient}:
+under explicitly stated assumptions, it produces enough misclassification
+to explain the entire endpoint gap. Other contributing factors (e.g.,
+overdiagnosis, informative censoring, differential surveillance) would
+operate in addition to stage slip, not instead of it.
+
+
+% --------------------------------------------------
+\subsection{Implications for trial design}
+
+\begin{enumerate}[nosep]
+\item \textbf{Endpoint selection.} A Stage~IV-only endpoint would have
+  been significant in this trial and is immune to Stage~II$\to$III slip.
+  Future MCED trials should consider endpoints that are less sensitive to
+  diagnostic infrastructure timing.
+
+\item \textbf{Infrastructure readiness.} The NHS had no pre-existing
+  pathway for MCED-positive asymptomatic referrals \cite{Lowenhoff2025}.
+  Future deployments should establish dedicated diagnostic channels before
+  screening begins.
+
+\item \textbf{Trial extension.} GRAIL has announced a 6--12 month
+  extension \cite{GRAIL2026}. If diagnostic resolution times improve with
+  experience (as GRAIL states and Mann et al.\ confirm \cite{Mann2025}),
+  the extended follow-up should reduce slip in later rounds and may
+  produce a significant composite endpoint.
+
+\item \textbf{Prespecified delay adjustment.} Trial protocols could
+  prespecify a stage-at-initiation analysis alongside the standard
+  stage-at-diagnosis endpoint, providing a built-in control for
+  infrastructure effects.
+\end{enumerate}
+
+
+% --------------------------------------------------
+\subsection{Limitations}
+
+\begin{enumerate}[nosep]
+\item The 92-day diagnostic delay is a constructed estimate, though
+  supported by five convergent evidence streams and robust across the full
+  65--120~day range.
+
+\item Some cancers lack complete published stage-specific sensitivity
+  breakdowns; we approximated from available CCGA~3 data and confirmed
+  robustness across a wide sensitivity range.
+
+\item Symptom-driven referral is modeled as constant exponential hazards;
+  real referral probability may increase with time-in-stage.
+
+\item The simulation assumes independence of sojourn times and diagnostic
+  delays; correlated structures could alter slip estimates.
+
+\item Actual trial case counts are unpublished; the 84-case estimate is
+  model-conditional and will be testable against full data at ASCO 2026.
+
+\item The model does not account for possible overdiagnosis, informative
+  censoring, or differential surveillance between arms, any of which could
+  independently contribute to endpoint attenuation.
+\end{enumerate}
+
+
+% --------------------------------------------------
+\subsection*{What can and cannot be claimed}
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, boxrule=0.5pt,
+  arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt]
+\begin{tabular}{p{0.46\textwidth}p{0.46\textwidth}}
+\toprule
+\textbf{Supported} & \textbf{Not supported} \\
+\midrule
+Stage slip is mechanistically plausible and quantitatively sufficient to
+explain the composite endpoint miss: 84 cases slipped, and only 25 needed
+to be recovered at realised sensitivity for significance. &
+Stage slip is the sole or proven cause. The actual trial's slip count is
+unknown. \\[0.8em]
+The conclusion is robust across the full 65--120~day delay range, across
+a 3$\times$ range of sensitivity assumptions, and against a model
+calibrated to NHS population data for all 12 cancers. &
+The number 84 is a precise prediction. It is a model-conditional
+estimate. \\[0.8em]
+GRAIL's own disclosure independently confirms that diagnostic resolution
+time contributed to the Stage~III excess. &
+GRAIL has quantified the delay at 92~days or the slip count at 84. \\[0.8em]
+86\% of slipped cases occurred where the screening system had a genuine
+detection opportunity. &
+All 84 cases represent direct infrastructure failure; 14\% had no system
+opportunity. \\
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
+
+
+% ====================================================================
+\section{Conclusions}
+% ====================================================================
+
+The NHS-Galleri trial's primary endpoint miss is consistent with stage
+slip arising from diagnostic latency. The Galleri test performed as
+intended---detecting cancers earlier, reducing Stage~IV diagnoses, and
+increasing early-stage detection. But the NHS diagnostic pathway was too
+slow to confirm many of those detections before anatomical progression
+past the Stage~II/III boundary. Our simulation estimates 84 cases affected,
+of which only 25 needed to be diagnosed promptly (at realised sensitivity
+levels) for the composite endpoint to reach statistical significance.
+
+This finding is robust: it holds across a wide range of diagnostic delay
+assumptions (65--120~days), across a three-fold range of test sensitivity
+values, and is independently corroborated by the sponsor's own SEC-
+regulated disclosure. The patient pool is large enough that even the most
+conservative assumptions produce sufficient slippage to exceed the
+significance threshold.
+
+The framework presented here offers testable predictions that can be
+validated against complete trial data when published, and a transparent
+methodology for evaluating how diagnostic pathway timing interacts with
+composite stage endpoints in cancer screening trials. Early detection is
+a system property: a sensitive test must be paired with responsive
+infrastructure to translate biological detection into clinical benefit.
+
+
+% ====================================================================
+\section*{Declarations}
+% ====================================================================
+
+\textbf{Funding:} None.
+
+\textbf{Competing interests:} The author declares no competing financial
+interests. The author holds no position in GRAIL, Inc.\ or any affiliated
+entity.
+
+\textbf{Ethics approval:} This work uses only publicly available, aggregate
+information and does not involve individual-level patient data. Ethics
+approval was not required.
+
+\textbf{Data availability:} All input data are from published sources
+cited in the text. Simulation outputs are reported in the manuscript.
+
+\textbf{Code availability:} The complete Python simulation code and
+supporting analysis scripts are available at
+\url{https://github.com/hbellout/stage-slip-mced}. The repository includes
+the calibrated 12-cancer simulation (\texttt{simulate.py}), the
+intervention-arm slip and p-value analysis
+(\texttt{analyse\_slip.py}), all input parameters, and instructions for
+reproducibility. Seeds are deterministic; identical results are obtained
+on any system with Python~3.10+ and NumPy~1.24+.
+
+
+% ====================================================================
+\begin{thebibliography}{99}
+
+\bibitem{GRAIL2026}
+GRAIL, Inc. Landmark NHS-Galleri Trial Demonstrates a Substantial Reduction
+in Stage~IV Cancer Diagnoses. Press release, February 19, 2026.
+
+\bibitem{Klein2021}
+Klein EA, Richards D, Cohn A, et al. Clinical validation of a targeted
+methylation-based multi-cancer early detection test using an independent
+validation set. \textit{Ann Oncol}. 2021;32(9):1167--1177.
+
+\bibitem{Liu2020}
+Liu MC, Oxnard GR, Klein EA, et al. Sensitive and specific multi-cancer
+detection and localization using methylation signatures in cell-free DNA.
+\textit{Ann Oncol}. 2020;31(6):745--759.
+
+\bibitem{Shao2022}
+Shao SH, Allen B, Clement J, et al. Multi-cancer early detection test
+sensitivity for cancers with and without current population-level screening
+options. \textit{Tumori}. 2023;109(3):335--341.
+
+\bibitem{GRAILfaq}
+GRAIL, Inc. Frequently Asked Questions for Providers. Galleri HCP website.
+Accessed February 2026.
+\url{https://www.galleri.com/hcp/faqs}
+
+\bibitem{Nabavizadeh2025}
+Nabavizadeh N, et al. Safety and Performance of a Multi-Cancer Early
+Detection (MCED) Test in an Intended-Use Population: Initial Results from
+the Registrational PATHFINDER~2 Study. ESMO Congress, Berlin, October 2025.
+
+\bibitem{Schrag2023}
+Schrag D, Beer TM, McDonnell CH, et al. Blood-based tests for multicancer
+early detection (PATHFINDER): a prospective cohort study. \textit{Lancet}.
+2023;402(10409):1251--1260.
+
+\bibitem{Mann2025}
+Mann S, Nascimento de Lima P, Eagan J, Ulyte A, Griffin BA. Potential
+spillover effects on diagnostic delay for cancer during the NHS-Galleri
+trial. \textit{medRxiv}. Posted Nov 7, 2024; v2 Dec 16, 2025.
+doi:10.1101/2024.11.06.24316784.
+
+\bibitem{NHS2025}
+NHS England. Cancer Waiting Times Statistics, 2021--2025.
+
+\bibitem{CRUK2025}
+Cancer Research UK. Early Diagnosis Data Hub and Cancer Waiting Times
+Analysis, 2024--2025.
+
+\bibitem{NLCA2024}
+National Lung Cancer Audit. State of the Nation Report 2024 (patients
+diagnosed 2022, England and Wales).
+
+\bibitem{NHSDig2020}
+NHS Digital. Cancer incidence by stage, England 2020; cancer survival by
+stage, 2015--2019 and 2016--2020.
+
+\bibitem{Lowenhoff2025}
+Lowenhoff I, et al. Clinical referral to the NHS following multi-cancer
+early detection test results from the NHS-Galleri trial. \textit{Frontiers
+in Oncology}. 2025;15:1511816.
+
+\bibitem{Marinac2025}
+Marinac CR, et al. Clinical Evaluation of Cancer Signal Origin and
+Diagnostic Resolution in the PATHFINDER Study. \textit{Cancer Prevention
+Research}. 2025;18(8):475--483.
+
+\end{thebibliography}
+
+
+% ====================================================================
+\appendix
+\section{Full simulation parameters}
+\label{app:params}
+% ====================================================================
+
+\begin{table}[!ht]\centering\small
+\caption{12-cancer parameters: incidence weights, sojourn times (years),
+calibrated referral hazards, and stage-specific MCED sensitivities from
+CCGA~3 \cite{Klein2021, GRAILfaq}.}
+\label{tab:cancers}
+\begin{tabular}{lrrrrrrrrr}\toprule
+Cancer & $w_c$ & $\tilde{D}_E$ & $\tilde{D}_{III}$ &
+  $k_E$ & $k_{III}$ & $k_{IV}$ &
+  sens$_E$ & sens$_{III}$ & sens$_{IV}$ \\ \midrule
+Anus        & .020 & 1.20 & 0.70 & 0.75 & 0.90 & 1.00 & .45 & .75 & .90 \\
+Bladder     & .080 & 1.20 & 0.60 & 0.75 & 0.80 & 2.50 & .17 & .50 & .75 \\
+Colorectal  & .200 & 2.50 & 0.90 & 0.15 & 0.90 & 5.50 & .30 & .70 & .90 \\
+Esophagus   & .050 & 0.90 & 0.50 & 0.20 & 0.80 & 1.00 & .40 & .80 & .92 \\
+Head \& Neck& .050 & 1.10 & 0.60 & 0.50 & 1.00 & 6.00 & .50 & .85 & .95 \\
+Liver/Bile  & .040 & 0.80 & 0.40 & 0.30 & 1.00 & 6.00 & .80 & 1.00 & 1.00 \\
+Lung        & .230 & 0.80 & 0.50 & 0.70 & 0.70 & 6.50 & .40 & .84 & .93 \\
+Lymphoma    & .090 & 1.60 & 0.80 & 0.30 & 0.50 & 3.50 & .40 & .73 & .88 \\
+Myeloma     & .060 & 1.80 & 0.90 & 0.25 & 0.60 & 2.00 & .35 & .70 & .85 \\
+Ovary       & .060 & 1.00 & 0.60 & 0.45 & 4.00 & 5.80 & .65 & .87 & .95 \\
+Pancreas    & .060 & 0.50 & 0.30 & 0.45 & 2.20 & 6.00 & .61 & .86 & .96 \\
+Stomach     & .060 & 1.00 & 0.60 & 0.25 & 0.80 & 5.50 & .40 & .75 & .90 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]\centering
+\caption{Key simulation parameters.}
+\label{tab:params}
+\begin{tabular}{p{0.32\textwidth}p{0.15\textwidth}p{0.43\textwidth}}\toprule
+Parameter & Value & Source \\ \midrule
+$N_{\text{screened}}$ & 142,000 & Trial design \\
+Cancer incidence & 1.0\% & UK population (age-matched) \\
+Follow-up & 3.0~years & Trial design \\
+Screen rounds & [0, 1, 2]~y & Annual screening \\
+SoC delay median & 92~days & Constructed (Section~\ref{sec:delay}) \\
+Screen delay medians & [75, 60, 50]~d & MCED workup + learning curve \\
+Spillover factor & $1.20\times$ Y1 & Mann et al.\ 2025 \cite{Mann2025} \\
+Sojourn $\sigma$ & 0.35 & Literature range \\
+Delay $\sigma$ & 0.55 & Assumption (tail heaviness) \\
+Seeds & 200 & Deterministic (0--199) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}

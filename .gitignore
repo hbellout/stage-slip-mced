@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Simulation outputs
+output/
+out_v3/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+
+# PDFs (optional: keep ignored if you don't want to track paper builds)
+*.pdf
