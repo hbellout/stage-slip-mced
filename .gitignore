@@ -13,5 +13,3 @@ out_v3/
 *.out
 *.toc
 
-# PDFs (optional: keep ignored if you don't want to track paper builds)
-*.pdf
