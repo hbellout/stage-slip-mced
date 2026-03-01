@@ -12,4 +12,4 @@ out_v3/
 *.log
 *.out
 *.toc
-
+*.synctex.gz
